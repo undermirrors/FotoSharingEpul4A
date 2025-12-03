@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head(${photo.title})}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(true)}"></div>
+    <div class="container mt-4">
+        <div th:replace="~{fragments/header :: disabled-account-alert}"></div>
+        <div th:replace="~{fragments/header :: alerts}"></div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <img th:src="@{'/photos/' + ${photo.id} + '/image'}" class="card-img-top" th:alt="${photo.title}">
+                    <div class="card-body">
+                        <h3 class="card-title" th:text="${photo.title}"></h3>
+                        <p class="card-text" th:text="${photo.description}"></p>
+                        <hr>
+                        <p>
+                            <strong>Propriétaire:</strong> <span th:text="${photo.ownerUsername}"></span><br>
+                            <strong>Visibilité:</strong> <span class="badge bg-secondary" th:text="${photo.visibility}"></span><br>
+                            <strong>Date:</strong> <span th:text="${#temporals.format(photo.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                        </p>
+                        <div class="mt-3">
+                            <a th:href="@{/photos}" class="btn btn-secondary">Retour</a>
+                            <a th:href="@{'/photos/' + ${photo.id} + '/edit'}" class="btn btn-warning" sec:authorize="@securityService.canEditPhoto(authentication, #vars.photo.id)">Éditer</a>
+                            <a th:href="@{'/photos/' + ${photo.id} + '/shares'}" class="btn btn-info" sec:authorize="@securityService.canEditPhoto(authentication, #vars.photo.id)">Gérer les partages</a>
+                            <form method="post" th:action="@{'/photos/' + ${photo.id} + '/delete'}" class="d-inline" sec:authorize="@securityService.canDeletePhoto(authentication, #vars.photo.id)">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-4">
+                    <div class="card-header"><h5>Commentaires</h5></div>
+                    <div class="card-body">
+                        <div th:if="${comments != null and !comments.empty}">
+                            <div th:each="comment : ${comments}" class="mb-3 border-bottom pb-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong th:text="${comment.authorUsername}"></strong>
+                                    <small class="text-muted" th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}"></small>
+                                </div>
+                                <p class="mt-2 mb-1" th:text="${comment.text}"></p>
+                                <form method="post" th:action="@{'/photos/' + ${photo.id} + '/comments/' + ${comment.id} + '/delete'}" class="d-inline" th:if="${currentUser != null and (currentUser.username == comment.authorUsername or currentUser.id == photo.ownerId or currentUser.role.name() == 'ADMIN' or currentUser.role.name() == 'MODERATOR')}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div th:if="${comments == null or comments.empty}" class="text-muted">Aucun commentaire pour le moment.</div>
+                        <div th:if="${param.error != null and param.error[0] == 'account_disabled'}" class="alert alert-danger mt-3">
+                            Votre compte est désactivé. Vous ne pouvez pas ajouter de commentaires.
+                        </div>
+                        <div class="mt-4" sec:authorize="@securityService.canCommentPhoto(authentication, #vars.photo.id)">
+                            <h6>Ajouter un commentaire</h6>
+                            <form method="post" th:action="@{'/photos/' + ${photo.id} + '/comments'}">
+                                <div class="mb-3">
+                                    <textarea name="text" class="form-control" rows="3" placeholder="Votre commentaire..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Envoyer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header"><h5>Informations</h5></div>
+                    <div class="card-body">
+                        <p><strong>Nom du fichier:</strong><br><small th:text="${photo.originalFilename}"></small></p>
+                    </div>
+                </div>
+                <div class="card mt-3" th:if="${albumsContainingPhoto != null and !albumsContainingPhoto.isEmpty()}">
+                    <div class="card-header"><h5>Albums contenant cette photo</h5></div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item" th:each="album : ${albumsContainingPhoto}">
+                                <a th:href="@{'/albums/' + ${album.id}}" th:text="${album.name}"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card mt-3" th:if="${currentUser != null and currentUser.id == photo.ownerId and userAlbums != null and !userAlbums.isEmpty()}">
+                    <div class="card-header"><h5>Ajouter à un album</h5></div>
+                    <div class="card-body">
+                        <form method="post" th:action="@{/albums/add-photo}">
+                            <input type="hidden" name="photoId" th:value="${photo.id}" />
+                            <div class="mb-3">
+                                <select name="albumId" class="form-select" required>
+                                    <option value="">Sélectionner un album</option>
+                                    <option th:each="album : ${userAlbums}" th:value="${album.id}" th:text="${album.name}"></option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Ajouter à l'album</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3" th:if="${currentUser != null and currentUser.id == photo.ownerId and (userAlbums == null or userAlbums.isEmpty()) and (albumsContainingPhoto == null or albumsContainingPhoto.isEmpty())}">
+                    Cette photo n'est dans aucun album. Créez un album pour l'organiser.
+                </div>
+                <div class="alert alert-info mt-3" th:if="${currentUser != null and currentUser.id == photo.ownerId and (userAlbums == null or userAlbums.isEmpty()) and albumsContainingPhoto != null and !albumsContainingPhoto.isEmpty()}">
+                    Cette photo est déjà dans tous vos albums.
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>
+

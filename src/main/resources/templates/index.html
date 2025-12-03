@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Accueil')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(false)}"></div>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2 text-center">
+                <h1 class="display-4">Bienvenue sur FotoShare</h1>
+                <p class="lead">Partagez vos photos en toute sécurité</p>
+                <div class="mt-4">
+                    <a th:href="@{/register}" class="btn btn-primary btn-lg me-2">Créer un compte</a>
+                    <a th:href="@{/login}" class="btn btn-outline-secondary btn-lg">Se connecter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>
+

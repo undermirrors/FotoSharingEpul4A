@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Connexion')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(false)}"></div>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-header"><h3 class="text-center">Connexion</h3></div>
+                    <div class="card-body">
+                        <div th:if="${param.banned != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Compte banni</strong><br/>
+                            Ton compte a été banni par un administrateur. Tu ne peux pas te connecter.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${param.error != null and param.banned == null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>La connexion a échoué</strong><br/>
+                            mot de passe ou nom d'utilisateur incorrect.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${param.logout != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            Deconnecté avec succès.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <form method="post" th:action="@{/login}">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nom d'utilisateur</label>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Entrez votre nom d'utilisateur" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mot de passe</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Entrez votre mot de passe" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Se connecter</button>
+                            </div>
+                            <div class="text-center mt-3">
+                                <span>Pas encore inscrit ? <a th:href="@{/register}">Créer un compte</a></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>
+

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head('Gérer les partages')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(true)}"></div>
+    <div class="container mt-4">
+        <div th:replace="~{fragments/header :: alerts}"></div>
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <h2>Gérer les partages de la photo</h2>
+                <p class="text-muted">Gérez qui peut accéder à votre photo et avec quels droits</p>
+                <div class="card mb-4">
+                    <div class="card-header"><h5>Partager avec un utilisateur</h5></div>
+                    <div class="card-body">
+                        <form method="post" th:action="@{'/photos/' + ${photoId} + '/shares'}">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nom d'utilisateur</label>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Entrez le nom d'utilisateur" required>
+                                <small class="form-text text-muted">Entrez le nom d'utilisateur exact</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="permissionLevel" class="form-label">Niveau de permission</label>
+                                <select name="permissionLevel" id="permissionLevel" class="form-select" required>
+                                    <option value="READ">Lecture seule</option>
+                                    <option value="COMMENT">Lecture + Commentaires</option>
+                                    <option value="ADMIN">Administration complète</option>
+                                </select>
+                                <div class="form-text">
+                                    <strong>READ:</strong> L'utilisateur peut seulement voir la photo<br>
+                                    <strong>COMMENT:</strong> L'utilisateur peut voir et commenter la photo<br>
+                                    <strong>ADMIN:</strong> L'utilisateur peut éditer et gérer la photo
+                                </div>
+                                <p class="small text-muted">Les partages permettent de donner accès à vos photos privées à des utilisateurs spécifiques avec différents niveaux de droits.</p>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Partager</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h5>Partages actuels</h5></div>
+                    <div class="card-body">
+                        <div th:if="${shares != null and !shares.empty}">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Utilisateur</th>
+                                            <th>Permission</th>
+                                            <th>Date de partage</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="share : ${shares}">
+                                            <td th:text="${share.username}"></td>
+                                            <td>
+                                                <span class="badge" th:classappend="${share.permissionLevel == 'ADMIN'} ? 'bg-danger' : (${share.permissionLevel == 'COMMENT'} ? 'bg-warning' : 'bg-info')" th:text="${share.permissionLevel}"></span>
+                                            </td>
+                                            <td th:text="${#temporals.format(share.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                            <td>
+                                                <form method="post" th:action="@{'/photos/' + ${photoId} + '/shares/' + ${share.id} + '/update'}" class="d-inline me-2">
+                                                    <select name="permissionLevel" class="form-select form-select-sm d-inline w-auto">
+                                                        <option value="READ" th:selected="${share.permissionLevel == 'READ'}">READ</option>
+                                                        <option value="COMMENT" th:selected="${share.permissionLevel == 'COMMENT'}">COMMENT</option>
+                                                        <option value="ADMIN" th:selected="${share.permissionLevel == 'ADMIN'}">ADMIN</option>
+                                                    </select>
+                                                    <button type="submit" class="btn btn-sm btn-warning">Modifier</button>
+                                                </form>
+                                                <form method="post" th:action="@{'/photos/' + ${photoId} + '/shares/' + ${share.id} + '/revoke'}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-danger">Révoquer</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div th:if="${shares == null or shares.empty}" class="text-muted">Aucun partage pour le moment. Cette photo n'est partagée avec personne.</div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a th:href="@{'/photos/' + ${photoId}}" class="btn btn-secondary">Retour à la photo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head('Gestion des utilisateurs - Admin')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(true)}"></div>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Gestion des utilisateurs</h2>
+            <a th:href="@{/admin}" class="btn btn-secondary">Retour au tableau de bord</a>
+        </div>
+        <div th:replace="~{fragments/header :: alerts}"></div>
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom d'utilisateur</th>
+                                <th>Email</th>
+                                <th>Rôle</th>
+                                <th>Statut</th>
+                                <th>Date de création</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${users.content}">
+                                <td th:text="${user.id}"></td>
+                                <td th:text="${user.username}"></td>
+                                <td th:text="${user.email}"></td>
+                                <td>
+                                    <span class="badge" th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-danger' : (${user.role.name() == 'MODERATOR'} ? 'bg-warning' : 'bg-primary')" th:text="${user.role.name()}"></span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${user.enabled} ? 'bg-success' : 'bg-secondary'" th:text="${user.enabled} ? 'Actif' : 'Inactif'"></span>
+                                </td>
+                                <td th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td>
+                                    <div th:if="${user.role.name() != 'ADMIN'}" class="btn-group" role="group">
+                                        <form method="post" th:action="@{'/admin/users/' + ${user.id} + '/role'}" class="d-inline me-1">
+                                            <select name="role" class="form-select form-select-sm d-inline w-auto">
+                                                <option value="USER" th:selected="${user.role.name() == 'USER'}">USER</option>
+                                                <option value="MODERATOR" th:selected="${user.role.name() == 'MODERATOR'}">MODERATOR</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-warning">Changer</button>
+                                        </form>
+                                        <form method="post" th:action="@{'/admin/users/' + ${user.id} + '/toggle-enabled'}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm" th:classappend="${user.enabled} ? 'btn-secondary' : 'btn-success'" th:text="${user.enabled} ? 'Désactiver' : 'Activer'"></button>
+                                        </form>
+                                    </div>
+                                    <span th:if="${user.role.name() == 'ADMIN'}" class="text-muted">—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:replace="~{fragments/header :: pagination(${users}, '/admin/users')}"></div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>
+

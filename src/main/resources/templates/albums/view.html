@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head(${album.name})}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(true)}"></div>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between mb-4">
+            <div>
+                <h2 th:text="${album.name}"></h2>
+                <p th:text="${album.description}"></p>
+            </div>
+            <div th:if="${canEdit}">
+                <a th:href="@{'/albums/' + ${album.id} + '/edit'}" class="btn btn-warning">Éditer</a>
+                <form method="post" th:action="@{'/albums/' + ${album.id} + '/delete'}" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+        <div th:if="${photos != null and !photos.isEmpty()}" class="row">
+            <div th:each="photo : ${photos}" class="col-md-3 mb-4">
+                <a th:href="@{'/photos/' + ${photo.id}}" class="text-decoration-none">
+                    <div class="card h-100">
+                        <img th:src="@{'/photos/' + ${photo.id} + '/image'}" class="card-img-top" th:alt="${photo.title}">
+                        <div class="card-body">
+                            <h6 class="card-title text-dark" th:text="${photo.title}"></h6>
+                        </div>
+                    </div>
+                </a>
+                <form th:if="${canEdit}" method="post" th:action="@{'/albums/' + ${album.id} + '/photos/' + ${photo.id} + '/remove'}" class="mt-2">
+                    <button type="submit" class="btn btn-sm btn-danger w-100">Retirer de l'album</button>
+                </form>
+            </div>
+        </div>
+        <div th:if="${photos == null or photos.isEmpty()}" class="text-center py-5">
+            <h4 class="text-muted">Aucune photo dans cet album</h4>
+        </div>
+        <a th:href="@{/albums}" class="btn btn-secondary mt-4">Retour</a>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>

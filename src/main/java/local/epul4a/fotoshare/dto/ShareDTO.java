@@ -1,0 +1,23 @@
+package local.epul4a.fotoshare.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ShareDTO {
+    private Long id;
+    private Long photoId;
+    private String photoTitle;
+    private Long userId;
+    private String username;
+    private String permissionLevel;
+    private LocalDateTime createdAt;
+}
+

@@ -1,0 +1,11 @@
+uploads/
+target/
+*.iml
+.idea/
+.vscode/
+*.log
+*.class
+*.jar
+*.war
+.DS_Store
+
