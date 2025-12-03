@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head('Upload Photo')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(true)}"></div>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header"><h3>Uploader une photo</h3></div>
+                    <div class="card-body">
+                        <div th:replace="~{fragments/header :: alerts}"></div>
+                        <div th:replace="~{fragments/forms :: photo-form(${photo}, @{/photos/upload}, 'Uploader', true)}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>
+

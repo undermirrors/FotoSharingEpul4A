@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - FotoShare'">FotoShare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav th:fragment="navbar(authenticated)" class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">FotoShare</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav" th:classappend="${authenticated} ? 'me-auto' : 'ms-auto'">
+                    <th:block th:if="${authenticated}">
+                        <li class="nav-item"><a class="nav-link" th:href="@{/photos}">Toutes les photos</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/photos/my}">Mes photos</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/photos/shared}">Partagées avec moi</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/albums}">Mes albums</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/photos/upload}">Uploader</a></li>
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')"><a class="nav-link text-warning" th:href="@{/admin}">Administration</a></li>
+                    </th:block>
+                    <th:block th:unless="${authenticated}">
+                        <li class="nav-item"><a class="nav-link" th:href="@{/photos/public}">Photos publiques</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/register}">Inscription</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/login}">Connexion</a></li>
+                    </th:block>
+                </ul>
+                <ul class="navbar-nav" th:if="${authenticated}">
+                    <li class="nav-item"><span class="navbar-text text-white me-3" sec:authentication="name"></span></li>
+                    <li class="nav-item">
+                        <form method="post" th:action="@{/logout}" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light btn-sm">Déconnexion</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div th:fragment="disabled-account-alert">
+        <div th:if="${accountDisabled}" class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Compte désactivé</strong> - Votre compte a été désactivé par un administrateur. Vous pouvez consulter le contenu mais ne pouvez plus ajouter de photos, commentaires, albums ou partages.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+
+    <div th:fragment="photo-grid(photos, baseUrl)" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mt-2">
+        <div class="col" th:each="photo : ${photos}">
+            <a th:href="@{'/photos/' + ${photo.id}}" class="text-decoration-none">
+                <div class="card h-100">
+                    <img th:src="@{'/photos/' + ${photo.id} + '/image'}" class="card-img-top" th:alt="${photo.title}">
+                    <div class="card-body">
+                        <h5 class="card-title text-dark" th:text="${photo.title}"></h5>
+                        <p class="card-text text-muted" th:text="${photo.description}" th:if="${photo.description}"></p>
+                        <small class="text-muted" th:if="${photo.ownerUsername}">Par <span th:text="${photo.ownerUsername}"></span></small>
+                        <span class="badge bg-secondary" th:text="${photo.visibility}" th:if="${photo.visibility}"></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <nav th:fragment="pagination(page, baseUrl)" th:if="${page.totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                <a class="page-link" th:href="@{${baseUrl}(page=${page.number - 1})}">Précédent</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}" th:classappend="${i == page.number} ? 'active'">
+                <a class="page-link" th:href="@{${baseUrl}(page=${i})}" th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                <a class="page-link" th:href="@{${baseUrl}(page=${page.number + 1})}">Suivant</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div th:fragment="alerts">
+        <div class="alert alert-success" th:if="${param.uploaded}">Photo uploadée avec succès !</div>
+        <div class="alert alert-success" th:if="${param.deleted}">Photo supprimée avec succès !</div>
+        <div class="alert alert-success" th:if="${param.commented}">Commentaire ajouté avec succès !</div>
+        <div class="alert alert-success" th:if="${param.commentDeleted}">Commentaire supprimé avec succès !</div>
+        <div class="alert alert-success" th:if="${param.shared}">Photo partagée avec succès !</div>
+        <div class="alert alert-success" th:if="${param.revoked}">Accès révoqué avec succès !</div>
+        <div class="alert alert-success" th:if="${param.registered}">Inscription réussie ! Vous pouvez maintenant vous connecter.</div>
+        <div class="alert alert-danger" th:if="${param.error}">Email ou mot de passe incorrect.</div>
+        <div class="alert alert-info" th:if="${param.logout}">Vous avez été déconnecté avec succès.</div>
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+    </div>
+
+    <script th:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </script>
+</body>
+</html>
+

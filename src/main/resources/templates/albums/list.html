@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head('Mes Albums')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(true)}"></div>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between mb-4">
+            <h2>Mes Albums</h2>
+            <a th:href="@{/albums/create}" class="btn btn-primary">Créer un album</a>
+        </div>
+        <div th:if="${albums != null and !albums.empty}" class="row">
+            <div th:each="album : ${albums}" class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 th:text="${album.name}"></h5>
+                        <p th:text="${album.description}"></p>
+                        <p class="small text-muted"><span th:text="${album.photoCount}"></span> photo(s)</p>
+                    </div>
+                    <div class="card-footer">
+                        <a th:href="@{'/albums/' + ${album.id}}" class="btn btn-sm btn-primary">Voir</a>
+                        <a th:href="@{'/albums/' + ${album.id} + '/edit'}" class="btn btn-sm btn-warning">Éditer</a>
+                        <form method="post" th:action="@{'/albums/' + ${album.id} + '/delete'}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${albums == null or albums.empty}" class="text-center py-5">
+            <h3 class="text-muted">Aucun album</h3>
+            <a th:href="@{/albums/create}" class="btn btn-primary">Créer un album</a>
+        </div>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>

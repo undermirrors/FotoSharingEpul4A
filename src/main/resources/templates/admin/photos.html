@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head('Gestion des photos - Admin')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(true)}"></div>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Gestion des photos</h2>
+            <a th:href="@{/admin}" class="btn btn-secondary">Retour au tableau de bord</a>
+        </div>
+        <div th:replace="~{fragments/header :: alerts}"></div>
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+            <div class="col" th:each="photo : ${photos.content}">
+                <div class="card h-100">
+                    <img th:src="@{'/photos/' + ${photo.id} + '/image'}" class="card-img-top" th:alt="${photo.title}">
+                    <div class="card-body">
+                        <h6 class="card-title" th:text="${photo.title}"></h6>
+                        <p class="card-text small">
+                            <strong>Propriétaire:</strong> <span th:text="${photo.ownerUsername}"></span><br>
+                            <strong>Visibilité:</strong> <span class="badge bg-secondary" th:text="${photo.visibility}"></span><br>
+                            <strong>Date:</strong> <span th:text="${#temporals.format(photo.createdAt, 'dd/MM/yyyy')}"></span>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a th:href="@{'/photos/' + ${photo.id}}" class="btn btn-sm btn-primary w-100 mb-2">Voir</a>
+                        <form method="post" th:action="@{'/admin/photos/' + ${photo.id} + '/delete'}">
+                            <button type="submit" class="btn btn-sm btn-danger w-100">Supprimer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="~{fragments/header :: pagination(${photos}, '/admin/photos')}"></div>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>
+

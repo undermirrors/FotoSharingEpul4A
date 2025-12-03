@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="album-form(album, action, buttonText)">
+        <form method="post" th:action="${action}" th:object="${album}">
+            <div class="mb-3">
+                <label for="name" class="form-label">Nom</label>
+                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+                <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+            </div>
+            <button type="submit" class="btn btn-primary" th:text="${buttonText}">Enregistrer</button>
+            <a th:href="@{/albums}" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+
+    <div th:fragment="photo-form(photo, action, buttonText, showFileUpload)">
+        <form method="post" th:action="${action}" th:object="${photo}" th:enctype="${showFileUpload} ? 'multipart/form-data' : 'application/x-www-form-urlencoded'">
+            <div class="mb-3">
+                <label for="title" class="form-label">Titre</label>
+                <input type="text" class="form-control" id="title" th:field="*{title}" placeholder="Titre de la photo" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" th:field="*{description}" rows="3" placeholder="Description de la photo"></textarea>
+                <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+            </div>
+            <div class="mb-3" th:if="${showFileUpload}">
+                <label for="file" class="form-label">Fichier</label>
+                <input type="file" class="form-control" id="file" th:field="*{file}" accept="image/*" required>
+                <small class="form-text text-muted">Taille maximale: 10MB. Formats acceptés: JPG, PNG, GIF, WEBP</small>
+                <div class="text-danger" th:if="${#fields.hasErrors('file')}" th:errors="*{file}"></div>
+            </div>
+            <div class="mb-3">
+                <label for="visibility" class="form-label">Visibilité</label>
+                <select class="form-select" id="visibility" th:field="*{visibility}">
+                    <option value="PRIVATE">Privée</option>
+                    <option value="PUBLIC">Publique</option>
+                </select>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" th:text="${buttonText}">Enregistrer</button>
+                <a th:href="@{${showFileUpload} ? '/photos/my' : '/photos/' + ${photoId}}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+

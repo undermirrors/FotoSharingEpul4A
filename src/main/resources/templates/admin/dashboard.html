@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head('Administration')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar(true)}"></div>
+    <div class="container mt-4">
+        <h1 class="mb-4">Tableau de bord administrateur</h1>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Utilisateurs</h5>
+                        <p class="card-text display-4" th:text="${totalUsers}">0</p>
+                        <p class="text-muted">Total des utilisateurs inscrits</p>
+                        <a th:href="@{/admin/users}" class="btn btn-primary">Gérer les utilisateurs</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Photos</h5>
+                        <p class="card-text display-4" th:text="${totalPhotos}">0</p>
+                        <p class="text-muted">Total des photos uploadées</p>
+                        <a th:href="@{/admin/photos}" class="btn btn-primary">Gérer les photos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+</html>
+
